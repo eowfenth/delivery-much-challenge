@@ -15,17 +15,19 @@ const querystringParser = (querystring: string): string[] => {
     return parsedContent;
 };
 
-const searchFor = async (ctx: ParameterizedContext, next: Next): Promise<IngredientsResponse> => {
+const searchFor = async (ctx: ParameterizedContext, next: Next): Promise<void> => {
     if (!ctx.request.query && !ctx.request.query.i) {
         ctx.body = { status: 400, message: 'Bad Format. You need to pass ingredients' };
     }
 
     const parsedQuerystring = querystringParser(ctx.request.query.i);
 
-    ctx.body = {
+    const body: IngredientsResponse = {
         keywords: parsedQuerystring,
         recipes: [],
     };
+
+    ctx.body = body;
 
     await next();
 };
