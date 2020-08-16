@@ -1,6 +1,6 @@
 import { ParameterizedContext, Next } from 'koa';
 import RecipePuppy, { RecipePuppyResponse, RecipePuppySuccessResponse } from '../utils/recipepuppy';
-
+import Giphy, { GiphySuccessResponse } from '../utils/giphy';
 interface IngredientsResponse {
     keywords: string[];
     recipes: {
@@ -17,7 +17,20 @@ const parseIngredients = (querystring: string): string[] => {
     return parsedContent;
 };
 
-const formatResponse = (response: RecipePuppySuccessResponse): IngredientsResponse['recipes'] => {
+const obtainRecipesMedia = async (content: IngredientsResponse['recipes']): Promise<IngredientsResponse['recipes']> => {
+    return Promise.all(
+        content.map(async (recipe) => {
+            const gif = await Giphy.search(recipe.title);
+
+            return {
+                ...recipe,
+                gif: gif.status === 200 ? (gif.data as GiphySuccessResponse).url : '',
+            };
+        }),
+    );
+};
+
+const formatRecipes = (response: RecipePuppySuccessResponse): IngredientsResponse['recipes'] => {
     return response.results.map((item) => ({
         title: item.title,
         ingredients: parseIngredients(item.ingredients),
@@ -42,7 +55,8 @@ const searchFor = async (ctx: ParameterizedContext, next: Next): Promise<void> =
 
     if (response.status === 200) {
         console.log(response.data);
-        const recipes = formatResponse(response.data as RecipePuppySuccessResponse);
+        let recipes = formatRecipes(response.data as RecipePuppySuccessResponse);
+        recipes = await obtainRecipesMedia(recipes);
 
         const body: IngredientsResponse = {
             keywords: ingredientsList,
