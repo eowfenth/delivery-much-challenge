@@ -20,10 +20,14 @@ const searchFor = async (ctx: ParameterizedContext, next: Next): Promise<void> =
         ctx.body = { status: 400, message: 'Bad Format. You need to pass ingredients' };
     }
 
-    const parsedQuerystring = querystringParser(ctx.request.query.i);
+    const ingredientsList = querystringParser(ctx.request.query.i);
+
+    if (ingredientsList.length >= 3) {
+        ctx.body = { status: 400, message: 'Bad Format. You must have up to 3 ingredients.'};
+    }
 
     const body: IngredientsResponse = {
-        keywords: parsedQuerystring,
+        keywords: ingredientsList,
         recipes: [],
     };
 
