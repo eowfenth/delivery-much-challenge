@@ -3,6 +3,6 @@ import ingredients from './controllers/ingredients';
 
 const router = new Router();
 
-router.get('/', ingredients.searchFor);
+router.get('/recipes', ingredients.searchFor);
 
 export default router;
