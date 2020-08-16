@@ -1,4 +1,5 @@
 import { ParameterizedContext, Next } from 'koa';
+import RecipePuppy, { RecipePuppyResponse, RecipePuppySuccessResponse } from '../utils/recipepuppy';
 
 interface IngredientsResponse {
     keywords: string[];
@@ -9,10 +10,20 @@ interface IngredientsResponse {
         gif: string;
     }[];
 }
-const querystringParser = (querystring: string): string[] => {
+
+const parseIngredients = (querystring: string): string[] => {
     const parsedContent = querystring.replace(/\s*,\s*/g, ',').split(',');
 
     return parsedContent;
+};
+
+const formatResponse = (response: RecipePuppySuccessResponse): IngredientsResponse['recipes'] => {
+    return response.results.map((item) => ({
+        title: item.title,
+        ingredients: parseIngredients(item.ingredients),
+        link: item.href,
+        gif: '',
+    }));
 };
 
 const searchFor = async (ctx: ParameterizedContext, next: Next): Promise<void> => {
@@ -20,18 +31,28 @@ const searchFor = async (ctx: ParameterizedContext, next: Next): Promise<void> =
         ctx.body = { status: 400, message: 'Bad Format. You need to pass ingredients' };
     }
 
-    const ingredientsList = querystringParser(ctx.request.query.i);
+    const ingredientsList = parseIngredients(ctx.request.query.i);
 
     if (ingredientsList.length >= 3) {
-        ctx.body = { status: 400, message: 'Bad Format. You must have up to 3 ingredients.'};
+        ctx.body = { status: 400, message: 'Bad Format. You must have up to 3 ingredients.' };
     }
 
-    const body: IngredientsResponse = {
-        keywords: ingredientsList,
-        recipes: [],
-    };
+    const page = ctx.request.query.p ?? 1;
+    const response: RecipePuppyResponse = await RecipePuppy.searchFor(ingredientsList, null, page);
 
-    ctx.body = body;
+    if (response.status === 200) {
+        console.log(response.data);
+        const recipes = formatResponse(response.data as RecipePuppySuccessResponse);
+
+        const body: IngredientsResponse = {
+            keywords: ingredientsList,
+            recipes,
+        };
+
+        ctx.body = body;
+    } else {
+        ctx.body = response;
+    }
 
     await next();
 };
