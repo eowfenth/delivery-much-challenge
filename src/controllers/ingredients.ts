@@ -20,7 +20,7 @@ interface IngredientsResponse {
 const parseIngredients = (querystring: string): string[] => {
     const parsedContent = querystring.replace(/\s*,\s*/g, ',').split(',');
 
-    return parsedContent;
+    return parsedContent.sort();
 };
 
 /**
