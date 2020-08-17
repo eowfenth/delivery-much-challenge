@@ -14,6 +14,15 @@ Este projeto foi montado utilizando `Typescript`, `Koa` e `Axios`. Os testes for
 
 Para instalar, basta digitar no seu terminal `npm ci`.
 
+#### Variáveis de Ambiente
+
+Existem variáveis de ambiente em que você precisa preencher. Acesse o arquivo `.env-example`, renomeie-o para `.env` e preencha as variáveis. 
+
+- A variável `GIPHY_API_KEY` é necessária e você pode obtê-la [aqui](https://developers.giphy.com/docs/api).
+- A variável `PORT` é opcional e possui valor padrão como `8081`;
+
+#### Rodando...
+
 Caso queira rodar sem a utilização de docker, você pode fazer de duas formas:
 
 1. A primeira é utilizando o `ts-node` sem necessidade de compilar os arquivos `.ts`.
