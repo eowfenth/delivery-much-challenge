@@ -1,6 +1,7 @@
 import { ParameterizedContext, Next } from 'koa';
 import RecipePuppy, { RecipePuppyResponse, RecipePuppySuccessResponse } from '../utils/recipepuppy';
 import Giphy, { GiphySuccessResponse } from '../utils/giphy';
+
 interface IngredientsResponse {
     keywords: string[];
     recipes: {
@@ -11,12 +12,21 @@ interface IngredientsResponse {
     }[];
 }
 
+/**
+ * Removes commas from text and blankspaces between commas.
+ *
+ * @param querystring querystring text to be transformed
+ */
 const parseIngredients = (querystring: string): string[] => {
     const parsedContent = querystring.replace(/\s*,\s*/g, ',').split(',');
 
     return parsedContent;
 };
 
+/**
+ * Obtain media for every recipe, returning a gif url for each recipe.
+ * @param content list containing recipes
+ */
 const obtainRecipesMedia = async (content: IngredientsResponse['recipes']): Promise<IngredientsResponse['recipes']> => {
     return Promise.all(
         content.map(async (recipe) => {
@@ -30,6 +40,10 @@ const obtainRecipesMedia = async (content: IngredientsResponse['recipes']): Prom
     );
 };
 
+/**
+ * Format the response of Recipe Puppy API to the needed format.
+ * @param response object of response from Recipe Puppy API
+ */
 const formatRecipes = (response: RecipePuppySuccessResponse): IngredientsResponse['recipes'] => {
     return response.results.map((item) => ({
         title: item.title,
@@ -39,6 +53,9 @@ const formatRecipes = (response: RecipePuppySuccessResponse): IngredientsRespons
     }));
 };
 
+/**
+ * Controller Function that searches for recipes based on given ingredients.
+ */
 const searchFor = async (ctx: ParameterizedContext, next: Next): Promise<void> => {
     if (!ctx.request.query.i) {
         ctx.status = 400;

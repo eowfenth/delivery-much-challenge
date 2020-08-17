@@ -27,6 +27,12 @@ const recipepuppy = axios.create({
     },
 });
 
+/**
+ * Searches for recipes based on ingredients.
+ * @param ingredients list of ingredients to use to find recipes
+ * @param mainDish a main query to use besides the given ingredients
+ * @param page number used as pagination
+ */
 const searchFor = async (
     ingredients: string[],
     mainDish: string | null,

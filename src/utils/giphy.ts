@@ -18,6 +18,10 @@ interface GiphyErrorResponse {
 
 const giphy = giphyClient(process.env.GIPHY_API_KEY);
 
+/**
+ * Searches for gifs and return the first found item;
+ * @param content text used to be used as query in Giphy API
+ */
 const search = async (content: string): Promise<GiphyResponse> => {
     let response;
     try {
