@@ -40,14 +40,18 @@ const formatRecipes = (response: RecipePuppySuccessResponse): IngredientsRespons
 };
 
 const searchFor = async (ctx: ParameterizedContext, next: Next): Promise<void> => {
-    if (!ctx.request.query && !ctx.request.query.i) {
+    if (!ctx.request.query.i) {
+        ctx.status = 400;
         ctx.body = { status: 400, message: 'Bad Format. You need to pass ingredients' };
+        return;
     }
 
     const ingredientsList = parseIngredients(ctx.request.query.i);
 
     if (ingredientsList.length >= 3) {
+        ctx.status = 400;
         ctx.body = { status: 400, message: 'Bad Format. You must have up to 3 ingredients.' };
+        return;
     }
 
     const page = ctx.request.query.p ?? 1;
